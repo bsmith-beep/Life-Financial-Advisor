@@ -1,2 +1,2 @@
 # Life-Financial-Advisor
-Cs32 Final Project
+CS32 Final Project
