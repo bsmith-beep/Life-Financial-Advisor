@@ -1,0 +1,258 @@
+import sys
+
+# --------------------------------------------------
+# Life Financial Advisor
+# Final Project Status Version
+#
+# This program asks the user about their dream lifestyle
+# and estimates the monthly and yearly income needed
+# to support it.
+# --------------------------------------------------
+
+# Average home prices by state
+HOME_PRICES = {
+    "HI": 850000, "CA": 780000, "MA": 620000, "WA": 600000,
+    "CO": 560000, "NJ": 520000, "UT": 510000, "OR": 500000,
+    "MT": 480000, "NY": 480000, "ID": 470000, "NH": 470000,
+    "NV": 450000, "MD": 450000, "VA": 450000, "AZ": 430000,
+    "RI": 430000, "CT": 420000, "FL": 410000, "VT": 400000,
+    "ME": 390000, "DE": 380000, "AK": 360000, "MN": 360000,
+    "WY": 350000, "NC": 350000, "TX": 340000, "GA": 340000,
+    "TN": 330000, "SC": 330000, "WI": 320000, "PA": 310000,
+    "IL": 300000, "NM": 300000, "SD": 290000, "ND": 280000,
+    "MI": 270000, "IN": 260000, "OH": 260000, "NE": 260000,
+    "IA": 250000, "MO": 250000, "KS": 240000, "LA": 240000,
+    "KY": 230000, "AL": 230000, "OK": 220000, "AR": 210000,
+    "WV": 210000, "MS": 200000
+}
+
+# Housing type price multipliers
+HOUSING_MULTIPLIERS = {
+    "house": 1.00,
+    "condo": 0.90,
+    "apartment": 0.65,
+    "mobile home": 0.40
+}
+
+VALID_MARRIED_CHOICES = ["yes", "no"]
+VALID_TRANSPORT_CHOICES = ["public transport", "car", "bike", "walk"]
+
+
+def get_valid_choice(prompt, valid_options, uppercase=False):
+    """
+    Ask the user for a choice and make sure it is valid.
+    """
+    response = input(prompt).strip()
+
+    if uppercase:
+        response = response.upper()
+    else:
+        response = response.lower()
+
+    if response not in valid_options:
+        print("\nInvalid input.")
+        print("Valid options are:", ", ".join(valid_options))
+        sys.exit()
+
+    return response
+
+
+def get_nonnegative_int(prompt):
+    """
+    Ask the user for a whole number that is 0 or greater.
+    """
+    try:
+        value = int(input(prompt).strip())
+        if value < 0:
+            print("\nPlease enter a whole number that is 0 or greater.")
+            sys.exit()
+        return value
+    except ValueError:
+        print("\nPlease enter a valid whole number.")
+        sys.exit()
+
+
+def calculate_housing_cost(state, home_type):
+    """
+    Estimate monthly housing cost based on state and housing type.
+    The 0.005 factor is used as a rough monthly estimate from home value.
+    """
+    base_home_price = HOME_PRICES[state]
+    multiplier = HOUSING_MULTIPLIERS[home_type]
+    return int(base_home_price * multiplier * 0.005)
+
+
+def calculate_food_cost(married, kids_num, eat_out_num):
+    """
+    Calculate monthly food cost based on household size and eating out habits.
+    """
+    food_cost = 450
+
+    if married == "yes":
+        food_cost += 350
+
+    food_cost += kids_num * 200
+    food_cost += eat_out_num * 120
+
+    return food_cost
+
+
+def calculate_transport_cost(transport, married):
+    """
+    Calculate transportation cost based on transportation type.
+    """
+    if transport == "car":
+        transport_cost = 965
+    elif transport == "public transport":
+        transport_cost = 120
+    elif transport == "bike":
+        transport_cost = 40
+    else:  # walk
+        transport_cost = 10
+
+    # Extra transportation cost if married and using a car
+    if married == "yes" and transport == "car":
+        transport_cost += 500
+
+    return transport_cost
+
+
+def calculate_extra_costs(married, kids_num):
+    """
+    Calculate kid, utility, phone, health, and fun costs.
+    """
+    kid_cost = kids_num * 900
+    utilities_cost = 350 + (kids_num * 75)
+    phone_cost = 75 + (kids_num * 25)
+    health_cost = 780
+    fun_cost = 250 + (kids_num * 75)
+
+    if married == "yes":
+        utilities_cost += 100
+        phone_cost += 60
+        health_cost = 1150
+        fun_cost += 125
+
+    return kid_cost, utilities_cost, phone_cost, health_cost, fun_cost
+
+
+def calculate_totals(housing_cost, food_cost, transport_cost, kid_cost,
+                     utilities_cost, phone_cost, health_cost, fun_cost):
+    """
+    Add all monthly costs and calculate yearly totals.
+    """
+    monthly_total = (
+        housing_cost
+        + food_cost
+        + transport_cost
+        + kid_cost
+        + utilities_cost
+        + phone_cost
+        + health_cost
+        + fun_cost
+    )
+
+    minimum_year = monthly_total * 12
+
+    # Comfortable income includes a 30% cushion for flexibility/savings.
+    comfortable_year = int(monthly_total * 1.3 * 12)
+
+    return monthly_total, minimum_year, comfortable_year
+
+
+def display_results(name, housing_cost, food_cost, transport_cost, kid_cost,
+                    utilities_cost, phone_cost, health_cost, fun_cost,
+                    monthly_total, minimum_year, comfortable_year):
+    """
+    Print the final breakdown of estimated lifestyle costs.
+    """
+    print()
+    print(f"Thanks, {name}. Calculating your future lifestyle costs...")
+    print()
+
+    print("Your Dream Lifestyle:")
+    print()
+    print(f"Housing cost: ${housing_cost:,}")
+    print(f"Food cost: ${food_cost:,}")
+    print(f"Transportation cost: ${transport_cost:,}")
+    print(f"Kid cost: ${kid_cost:,}")
+    print(f"Utilities cost: ${utilities_cost:,}")
+    print(f"Phone cost: ${phone_cost:,}")
+    print(f"Health cost: ${health_cost:,}")
+    print(f"Fun cost: ${fun_cost:,}")
+    print()
+
+    print("BASED OFF YOUR LIFESTYLE CHOICES:")
+    print()
+    print(f"Total monthly cost: ${monthly_total:,}")
+    print(f"Minimum yearly income: ${minimum_year:,}")
+    print(f"Comfortable yearly income: ${comfortable_year:,}")
+    print()
+
+    if comfortable_year >= 150000:
+        print("This dream lifestyle would likely require a high income.")
+    elif comfortable_year >= 80000:
+        print("This dream lifestyle would likely require a moderate income.")
+    else:
+        print("This dream lifestyle would likely require a lower income.")
+
+
+def main():
+    """
+    Main program flow.
+    """
+    print("Welcome to the Life Financial Advisor")
+    print("Please answer the following questions!")
+    print()
+
+    name = input("What is your name? ").strip()
+
+    married = get_valid_choice(
+        "Do you want to be married? (yes/no) ",
+        VALID_MARRIED_CHOICES
+    )
+
+    kids_num = get_nonnegative_int("How many kids do you want? ")
+
+    home_type = get_valid_choice(
+        "Do you want to live in a house, apartment, condo, or mobile home? ",
+        list(HOUSING_MULTIPLIERS.keys())
+    )
+
+    state = get_valid_choice(
+        "What state do you want to live in? Use the 2-letter abbreviation: ",
+        list(HOME_PRICES.keys()),
+        uppercase=True
+    )
+
+    transport = get_valid_choice(
+        "What transportation do you take... public transport, car, bike, or walk? ",
+        VALID_TRANSPORT_CHOICES
+    )
+
+    eat_out_num = get_nonnegative_int(
+        "How many days a week do you like to eat out? "
+    )
+
+    housing_cost = calculate_housing_cost(state, home_type)
+    food_cost = calculate_food_cost(married, kids_num, eat_out_num)
+    transport_cost = calculate_transport_cost(transport, married)
+
+    kid_cost, utilities_cost, phone_cost, health_cost, fun_cost = calculate_extra_costs(
+        married, kids_num
+    )
+
+    monthly_total, minimum_year, comfortable_year = calculate_totals(
+        housing_cost, food_cost, transport_cost, kid_cost,
+        utilities_cost, phone_cost, health_cost, fun_cost
+    )
+
+    display_results(
+        name, housing_cost, food_cost, transport_cost, kid_cost,
+        utilities_cost, phone_cost, health_cost, fun_cost,
+        monthly_total, minimum_year, comfortable_year
+    )
+
+
+if __name__ == "__main__":
+    main()
