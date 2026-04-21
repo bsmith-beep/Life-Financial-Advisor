@@ -1,0 +1,152 @@
+print("Welcome to the Life Financial Advisor")
+print("Please answer the following questions!")
+print()
+
+# --------------------------
+# INPUT SECTION
+# --------------------------
+
+name = input("What is your name? ").strip()
+married = input("Do you want to be married? (yes/no) ").strip().lower()
+kids = input("How many kids do you want? ").strip()
+home = input("Do you want to live in a house, apartment, condo, or mobile home? ").strip().lower()
+state = input("What state do you want to live in? Use the 2-letter abbreviation: ").strip().upper()
+transport = input("What transportation do you take... public transport, car, bike, or walk? ").strip().lower()
+eat_out = input("How many days a week do you like to eat out? ").strip()
+
+
+print()
+print(f"Thanks, {name}. Calculating your future lifestyle costs...")
+print()
+
+# --------------------------
+# CONVERT INPUTS
+# --------------------------
+
+try:
+    kids_num = int(kids)
+    eat_out_num = int(eat_out)
+
+    if kids_num < 0 or eat_out_num < 0:
+        print("Kids and eating-out days must be 0 or greater.")
+        exit()
+except ValueError:
+    print("Please enter valid whole numbers.")
+    exit()
+
+# --------------------------
+# HOME PRICES BY STATE
+# --------------------------
+
+home_prices = {
+    "HI": 850000, "CA": 780000, "MA": 620000, "WA": 600000,
+    "CO": 560000, "NJ": 520000, "UT": 510000, "OR": 500000,
+    "MT": 480000, "NY": 480000, "ID": 470000, "NH": 470000,
+    "NV": 450000, "MD": 450000, "VA": 450000, "AZ": 430000,
+    "RI": 430000, "CT": 420000, "FL": 410000, "VT": 400000,
+    "ME": 390000, "DE": 380000, "AK": 360000, "MN": 360000,
+    "WY": 350000, "NC": 350000, "TX": 340000, "GA": 340000,
+    "TN": 330000, "SC": 330000, "WI": 320000, "PA": 310000,
+    "IL": 300000, "NM": 300000, "SD": 290000, "ND": 280000,
+    "MI": 270000, "IN": 260000, "OH": 260000, "NE": 260000,
+    "IA": 250000, "MO": 250000, "KS": 240000, "LA": 240000,
+    "KY": 230000, "AL": 230000, "OK": 220000, "AR": 210000,
+    "WV": 210000, "MS": 200000
+}
+
+# --------------------------
+# HOUSING COST
+# --------------------------
+
+housing_multipliers = {
+    "house": 1.00,
+    "condo": 0.90,
+    "apartment": 0.65,
+    "mobile home": 0.40
+}
+
+base_home_price = home_prices.get(state, 300000)
+multiplier = housing_multipliers.get(home, 0.75)
+
+housing_cost = int(base_home_price * multiplier * 0.005)
+
+# --------------------------
+# OTHER COSTS
+# --------------------------
+
+food_cost = 450
+transport_cost = 0
+kid_cost = kids_num * 900
+
+# Food
+if married == "yes":
+    food_cost += 350
+
+food_cost += kids_num * 200
+food_cost += eat_out_num * 120
+
+# Transport
+if transport == "car":
+    transport_cost = 965
+elif transport == "public transport":
+    transport_cost = 120
+elif transport == "bike":
+    transport_cost = 40
+elif transport == "walk":
+    transport_cost = 10
+else:
+    transport_cost = 150
+
+if married == "yes" and transport == "car":
+    transport_cost += 500
+
+# Extras
+utilities_cost = 350 + (kids_num * 75)
+phone_cost = 75 + (kids_num * 25)
+health_cost = 780
+fun_cost = 250 + (kids_num * 75)
+
+if married == "yes":
+    utilities_cost += 100
+    phone_cost += 60
+    health_cost = 1150
+    fun_cost += 125
+
+# --------------------------
+# TOTAL CALCULATIONS
+# --------------------------
+
+monthly_total = (
+    housing_cost
+    + food_cost
+    + transport_cost
+    + kid_cost
+    + utilities_cost
+    + phone_cost
+    + health_cost
+    + fun_cost
+)
+
+minimum_year = monthly_total * 12
+comfortable_year = int(monthly_total * 1.3 * 12)
+
+# --------------------------
+# FINAL OUTPUT
+# --------------------------
+
+print("Your Dream Lifestyle:")
+print()
+print(f"Housing cost: ${housing_cost:,}")
+print(f"Food cost: ${food_cost:,}")
+print(f"Transportation cost: ${transport_cost:,}")
+print(f"Kid cost: ${kid_cost:,}")
+print(f"Utilities cost: ${utilities_cost:,}")
+print(f"Phone cost: ${phone_cost:,}")
+print(f"Health cost: ${health_cost:,}")
+print(f"Fun cost: ${fun_cost:,}")
+print()
+print("BASED OFF YOUR LIFESTYLE CHOICES:")
+print()
+print(f"Total monthly cost: ${monthly_total:,}")
+print(f"Minimum yearly income: ${minimum_year:,}")
+print(f"Comfortable yearly income: ${comfortable_year:,}")
