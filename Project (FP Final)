@@ -1,0 +1,193 @@
+print("Welcome to the Life Financial Advisor")
+print("Please answer the following questions!")
+print()
+
+name = input("What is your name? ").strip()
+married = input("Do you want to be married? (yes/no) ").strip().lower()
+kids = input("How many kids do you want? ").strip()
+home = input("Do you want to live in a house, apartment, condo, or mobile home? ").strip().lower()
+state = input("What state do you want to live in? Use the 2-letter abbreviation: ").strip().upper()
+transport = input("What transportation do you take... public transport, car, bike, or walk? ").strip().lower()
+eat_out = input("How many days a week do you like to eat out? ").strip()
+
+print()
+print(f"Thanks, {name}. Calculating your future lifestyle costs...")
+print()
+
+try:
+    kids_num = int(kids)
+    eat_out_num = int(eat_out)
+
+    if kids_num < 0 or eat_out_num < 0:
+        print("Kids and eating-out days must be 0 or greater.")
+        exit()
+
+    if eat_out_num > 7:
+        print("Eating-out days cannot be more than 7.")
+        exit()
+
+except ValueError:
+    print("Please enter valid whole numbers.")
+    exit()
+
+# Estimated median home prices by state.
+# These are simplified state averages used to make housing costs vary by location.
+home_prices = {
+    "HI": 850000, "CA": 780000, "MA": 620000, "WA": 600000,
+    "CO": 560000, "NJ": 520000, "UT": 510000, "OR": 500000,
+    "MT": 480000, "NY": 480000, "ID": 470000, "NH": 470000,
+    "NV": 450000, "MD": 450000, "VA": 450000, "AZ": 430000,
+    "RI": 430000, "CT": 420000, "FL": 410000, "VT": 400000,
+    "ME": 390000, "DE": 380000, "AK": 360000, "MN": 360000,
+    "WY": 350000, "NC": 350000, "TX": 340000, "GA": 340000,
+    "TN": 330000, "SC": 330000, "WI": 320000, "PA": 310000,
+    "IL": 300000, "NM": 300000, "SD": 290000, "ND": 280000,
+    "MI": 270000, "IN": 260000, "OH": 260000, "NE": 260000,
+    "IA": 250000, "MO": 250000, "KS": 240000, "LA": 240000,
+    "KY": 230000, "AL": 230000, "OK": 220000, "AR": 210000,
+    "WV": 210000, "MS": 200000
+}
+
+# Housing multipliers adjust the cost depending on the type of housing.
+# A house is the full baseline cost, while apartments and mobile homes are cheaper.
+housing_multipliers = {
+    "house": 1.00,
+    "condo": 0.85,
+    "apartment": 0.60,
+    "mobile home": 0.35
+}
+
+base_home_price = home_prices.get(state, 300000)
+multiplier = housing_multipliers.get(home, 0.75)
+
+# 0.006 estimates a monthly housing payment/rent from the state's home price.
+# This simplifies mortgage/rent, property taxes, insurance, and housing fees.
+housing_cost = int(base_home_price * multiplier * 0.006)
+
+adults = 2 if married == "yes" else 1
+
+# Food estimates are based on realistic monthly grocery costs.
+# Adults are estimated at $485/month, and each child adds about $300/month.
+food_cost = adults * 485 + kids_num * 300
+
+# Eating out is estimated at $45 per adult per day.
+food_cost += eat_out_num * adults * 45
+
+# Car ownership is based on AAA's 2025 estimate of about $965/month.
+# Public transportation, biking, and walking are lower-cost estimates.
+if transport == "car":
+    transport_cost = 965
+
+    # A married household may need a second car or more driving costs.
+    if married == "yes":
+        transport_cost += 500
+
+elif transport == "public transport":
+    transport_cost = adults * 120
+elif transport == "bike":
+    transport_cost = adults * 45
+elif transport == "walk":
+    transport_cost = adults * 20
+else:
+    transport_cost = adults * 150
+
+# Child cost includes childcare, school supplies, activities, and other child-related needs.
+kid_cost = kids_num * 1200
+
+# Utilities are based on average monthly electric, gas, and water costs.
+# Each child adds a small extra amount because larger households use more utilities.
+utilities_cost = 412 + (kids_num * 60)
+
+# Internet is estimated as a standard monthly home internet bill.
+internet_cost = 75
+
+# Phone cost assumes $75 per adult and a smaller cost for each child.
+phone_cost = adults * 75 + kids_num * 25
+
+# Health cost estimates monthly insurance and medical expenses.
+# Costs increase with more family members.
+if married == "yes":
+    health_cost = 570
+else:
+    health_cost = 415
+
+health_cost += kids_num * 175
+
+# Clothing, fun, and personal care are everyday lifestyle expenses.
+clothing_cost = adults * 90 + kids_num * 60
+fun_cost = adults * 250 + kids_num * 100
+personal_care_cost = adults * 75 + kids_num * 35
+
+monthly_subtotal = (
+    housing_cost
+    + food_cost
+    + transport_cost
+    + kid_cost
+    + utilities_cost
+    + internet_cost
+    + phone_cost
+    + health_cost
+    + clothing_cost
+    + fun_cost
+    + personal_care_cost
+)
+
+# Taxes are estimated at 22%.
+# This is a simplified effective tax estimate, not an exact tax calculation.
+tax_rate = 0.22
+tax_cost = int(monthly_subtotal * tax_rate)
+
+# Savings are estimated at 10%.
+# This represents emergency savings, retirement savings, or future goals.
+savings_rate = 0.10
+savings_cost = int(monthly_subtotal * savings_rate)
+
+monthly_total = monthly_subtotal + tax_cost + savings_cost
+minimum_year = monthly_total * 12
+comfortable_year = int(monthly_total * 1.25 * 12)
+
+print("Your Dream Lifestyle:")
+print()
+print(f"Housing cost: ${housing_cost:,}")
+print(f"Food cost: ${food_cost:,}")
+print(f"Transportation cost: ${transport_cost:,}")
+print(f"Kid cost: ${kid_cost:,}")
+print(f"Utilities cost: ${utilities_cost:,}")
+print(f"Internet cost: ${internet_cost:,}")
+print(f"Phone cost: ${phone_cost:,}")
+print(f"Health cost: ${health_cost:,}")
+print(f"Clothing cost: ${clothing_cost:,}")
+print(f"Fun cost: ${fun_cost:,}")
+print(f"Personal care cost: ${personal_care_cost:,}")
+print(f"Estimated taxes: ${tax_cost:,}")
+print(f"Savings / emergency fund: ${savings_cost:,}")
+print()
+print("BASED OFF YOUR LIFESTYLE CHOICES:")
+print()
+print(f"Total monthly cost: ${monthly_total:,}")
+print(f"Minimum yearly income: ${minimum_year:,}")
+print(f"Comfortable yearly income: ${comfortable_year:,}")
+
+print()
+print("PERSONALIZED ADVICE:")
+print("-" * 30)
+
+if housing_cost > monthly_subtotal * 0.35:
+    print("Your housing cost is high. Consider a cheaper home type or state.")
+
+if eat_out_num >= 4:
+    print("You eat out frequently. Cutting back could save hundreds of dollars per month.")
+
+if transport == "car":
+    print("Car ownership is expensive. Public transportation, biking, or walking could lower your costs.")
+
+if kids_num >= 3:
+    print("A larger family increases costs significantly. Plan ahead for childcare, school, and activities.")
+
+if savings_rate < 0.15:
+    print("Consider saving closer to 15-20% of income if possible.")
+
+if monthly_total > 8000:
+    print("This is a high-cost lifestyle, so it may require a high-paying career.")
+else:
+    print("This lifestyle appears more financially manageable.")
